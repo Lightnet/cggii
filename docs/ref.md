@@ -41,4 +41,12 @@ https://www.cplusplus.com/forum/beginner/100593/
 
 https://stackoverflow.com/questions/46203809/glfw-mouse-event-lag-with-window-drag
 https://forum.openframeworks.cc/t/removing-the-titlebar-and-fixing-window-size-using-glfw/14895/6
+
+https://discourse.dearimgui.org/t/how-to-make-menus-persist-after-clicking-a-menuitem/148
+
+https://github.com/ocornut/imgui/issues/3518
+
+
+https://github.com/aoterodelaroza/imgui-goodies/blob/master/examples/container.cpp
+SameLine(0, GetWindowSize().x-250.);
 ```

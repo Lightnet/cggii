@@ -4,6 +4,7 @@
 // Read online: https://github.com/ocornut/imgui/tree/master/docs
 
 #include "imgui.h"
+#include "imgui_internal.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 #include <stdio.h>
@@ -72,7 +73,6 @@ const char *get_filename_ext(const char *filename) {
     return (!dot || dot == filename) ? "" : dot + 1;
 }
 
-
 // https://cboard.cprogramming.com/cplusplus-programming/105950-const-char*-char-array.html
 // https://www.generacodice.com/en/articolo/29684/How-to-get-file-extension-from-string-in-C++
 void handle_dropped_file(const char filename[]){
@@ -117,29 +117,56 @@ void drop_callback(GLFWwindow* window, int count, const char** paths)
         //printf("drop %s \n", paths[i]);
         //dllFIleName = paths[i];
     }
-        
 }
 
 static double cursor_pos_x = 0;
 static double cursor_pos_y = 0;
 static double delta_x = 0;
 static double delta_y = 0;
-
 static int window_drag_active = 0;
+
+static bool isDragScreen = true;
+
 // https://stackoverflow.com/questions/46203809/glfw-mouse-event-lag-with-window-drag
 static void mouse_button_callback(GLFWwindow *window, int button, int action, int mods) {
     if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
-        window_drag_active = 1;
+        
         double x, y;
         glfwGetCursorPos(window, &x, &y);
-        cursor_pos_x = floor(x);
+        cursor_pos_x = floor(x);//window screen area
         cursor_pos_y = floor(y);
+        //glfwPollEvents();
+        //glfwWaitEvents();
+        int width, height;
+        glfwGetWindowSize(window, &width, &height);
+        //printf("width: %i \n",width);
+        //printf("height: %i \n",height);
+        //printf("height: %f \n",window.viewport_height);
+        if(!isDragScreen){
+            if( (0 < cursor_pos_x )&&(cursor_pos_x < width)&&
+                (0 < cursor_pos_y )&&(cursor_pos_y < 30)
+            ){
+                window_drag_active = 1;
+            }
+        }else{
+            window_drag_active = 1;
+        }
+        //printf("x: %f \n",cursor_pos_x);
+        //printf("width: %f \n",width);
+        //printf("height: %f \n",height);
     }
     if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE) {
         window_drag_active = 0;
     }
 }
 
+
+void framebuffer_size_callback(GLFWwindow* window, int width, int height)
+{
+    //glViewport(0, 0, width, height);
+
+    //printf("height: %i \n",height);
+} 
 
 
 //===============================================
@@ -190,9 +217,12 @@ int main(int, char**)
     GLFWwindow* window = glfwCreateWindow(480, 320, "cggii", NULL, NULL);
     if (window == NULL)
         return 1;
-    glfwSetMouseButtonCallback(window, mouse_button_callback);
+    
 
     glfwMakeContextCurrent(window);
+
+    glfwSetMouseButtonCallback(window, mouse_button_callback);
+    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);  
     glfwSwapInterval(1); // Enable vsync
 
 
@@ -239,8 +269,8 @@ int main(int, char**)
     //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
 
     // Setup Dear ImGui style
-    ImGui::StyleColorsDark();
-    //ImGui::StyleColorsClassic();
+    //ImGui::StyleColorsDark();
+    ImGui::StyleColorsClassic();
 
     // Setup Platform/Renderer backends
     ImGui_ImplGlfw_InitForOpenGL(window, true);
@@ -267,17 +297,17 @@ int main(int, char**)
     bool show_demo_window = false;
     bool show_another_window = false;
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
-
     bool show_base_window = true;
-
     char name[128] = "";
-
     char ConvertDLL[128] = "";
+
+    string sToggleScreenDrag = "Screen Drag [False]";
     
-    bool isRunning = true;
+    
 
     ImGuiWindowFlags mainPanelFlags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoSavedSettings;
 
+    bool isRunning = true;
     // Main loop
     while (isRunning && !glfwWindowShouldClose(window))
     {
@@ -313,11 +343,41 @@ int main(int, char**)
                 if (ImGui::MenuItem("Close", "Ctrl+W"))  { isRunning = false; }
                 ImGui::EndMenu();
             }
+            ImGui::Separator();
             if (ImGui::BeginMenu("View"))
             {
                 if (ImGui::MenuItem("Tool", "")) {
                     show_base_window=true;
                 }
+                ImGui::EndMenu();
+            }
+            ImGui::Separator();
+            if (ImGui::BeginMenu("Settings"))
+            {
+                ImGui::PushItemFlag(ImGuiItemFlags_SelectableDontClosePopup, true);
+                if (ImGui::MenuItem("Screen Drag", "", &isDragScreen)) {
+                    show_base_window=true;
+                }
+                ImGui::PopItemFlag();
+                ImGui::EndMenu();
+            }
+            ImGui::Separator();
+            if (ImGui::BeginMenu("Help"))
+            {
+                if (ImGui::MenuItem("About", "")) {
+                    
+                }
+                ImGui::EndMenu();
+            }
+            ImGui::Separator();
+            //ImGui::SetColumnWidth(0, 70.0f); //nope
+            //ImGui::PushItemWidth(100);
+            ImGui::SameLine(0, ImGui::GetWindowSize().x-268.);
+            ImGui::Separator();
+
+            if (ImGui::BeginMenu("x"))
+            {
+                isRunning = false;
                 ImGui::EndMenu();
             }
             ImGui::EndMainMenuBar();
