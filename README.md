@@ -26,26 +26,11 @@
  * Order of the build since used fetch git file build. Will cause error.
  * 
 
-# Glad 0.1.34:
+# Glad:
   There is premade files to help quick build test. It used web service generate the files.
 
 # glad1:
  * https://github.com/Dav1dde/glad
-
-## Web Version: 0.1.34 
-
-```
-https://glad.dav1d.de/
-
-Language: c/c++
-Specification: openGL
-
-API:
-  gl version 3.3
-  gless1 version 1.0
-  gles2 version 3.3
-  glsc2 version 2.0
-```
 
 # glad2: 2.0.0-BETA
  * https://github.com/Dav1dde/glad/tree/glad2
